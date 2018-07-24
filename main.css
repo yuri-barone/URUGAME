@@ -1,0 +1,19 @@
+.circleAmigo {
+    position: absolute;
+    display: block;
+    background: rgb(231, 235, 10);
+    border-radius: 100%;
+    height: 30px;
+    width: 30px;
+    margin: 0;
+  }
+
+.circleInimigo {
+  position: absolute;
+    display: block;
+    background: red;
+    border-radius: 100%;
+    height: 30px;
+    width: 30px;
+    margin: 0;
+}
