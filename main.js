@@ -6,6 +6,7 @@
         document.addEventListener('DOMContentLoaded', initializePage, false);
         var circulo
         var circuloObj
+        var LegalTimer
         var speed = 50
         var leftPosition = 0
         var topPosition = 0
@@ -24,7 +25,7 @@
         }
 
         function timer() {
-            var time = setInterval(changeNumber, 500)
+            LegalTimer = setInterval(changeNumber, 500)
             
         }
 
@@ -49,11 +50,10 @@
         function changeNumber() {
             criaInimigo()
             tick = tick + 1
-
             timeToMovementCirculo()
             moveEnemies()
-            console.log(circuloObj)
             document.getElementById("score").innerHTML ="Score:" + tick
+            GetBadEnemies()
             
         }
 
@@ -82,15 +82,28 @@
             var newPosition = getNextPosition(circuloObj.currentPosition, lastCommand)
 
             circuloObj.currentPosition = newPosition 
-            
+        
             moveCharacter(circuloObj.id, circuloObj.currentPosition)
 
         }
 
+        function GetBadEnemies() {
+            var resultado = enemies.filter(function(enemie){
+                return enemie.currentPosition.x == circuloObj.currentPosition.x && enemie.currentPosition.y == circuloObj.currentPosition.y
+            })
+            if(resultado.length > 0 ){ var tickTotal = tick -1
+                clearInterval(LegalTimer)
+                 alert("Voce morreu men, sua pontuacao final foi " + tickTotal  + " pontos")
+                 
+                }
+        }
+
+        
+
         //inimigos
 
         function createEnemie() {
-            var position = {x:windowWidth/2, y:windowHeight/2}
+            var position = {x:0, y:0}
             var enemieElement = createBootElement(position)
             var boot = createBoot(enemieElement.id, position.x, position.y)
             enemies.push(boot)
@@ -154,17 +167,19 @@
             while(!isValidPosition(newPosition)){
                 newDirection = getRandomDirection()
                 newPosition = getNextPosition(enemie.currentPosition, newDirection);
-            }     
-            
+            }   
             enemie.currentPosition = newPosition 
             moveCharacter(enemie.id, enemie.currentPosition)
 
         }
 
+ 
+
         function moveCharacter(characterId, position) {
             var character = document.getElementById(characterId)
             character.style.top = position.y + "px"
             character.style.left = position.x + "px"
+            
         }
 
         function moveEnemies() {
