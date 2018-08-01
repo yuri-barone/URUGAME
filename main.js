@@ -3,6 +3,7 @@
         
 
         var enemies = []
+        var bombs = []
         const possiblyDirections = ["ArrowRight", "ArrowDown", "ArrowUp", "ArrowLeft" ];
         document.addEventListener('DOMContentLoaded', initializePage, false);
         var circulo
@@ -18,7 +19,7 @@
         var windowHeight
         
         function addCirculoObject() {
-            circuloObj = {id: circulo.id, currentPosition:{x: 0, y:0}, life:300} 
+            circuloObj = {id: circulo.id, currentPosition:{x: 0, y:0}, life:300, bombNum:5} 
         }
         
         function getWindowSize() {
@@ -55,6 +56,8 @@
             timeToMovementCirculo()
             moveEnemies()
             checkEnemies()
+            mapColidedWithBomb()
+            updateBar()
             mapColisionResults()
             ifLoose()
             document.getElementById("score").innerHTML ="Score:" + tick
@@ -69,12 +72,16 @@
 
         function setCirculo() {
             circulo = document.getElementById('circulo')
+            makeBar()
             addCirculoObject()
 
         }
         
         function onKey(event) {
             var nextCommand = event.key
+            if (nextCommand == " ") {
+                putBomb()
+            }
             if(possiblyDirections.includes(nextCommand)){   
                 lastCommand = event.key
             }
@@ -111,6 +118,8 @@
         function ifLoose() {
             if (circuloObj.life <= 0) {
                 clearInterval(legalTimer)
+                var barra = document.getElementById("lifeBar")
+                barra.value = "0"
                 showLooseScreen()   
             }
         }
@@ -140,12 +149,97 @@
         function restartTheGame() {
             location.reload()
         }
-        
+    
+        function makeBar() {
+            var lifeBar = document.createElement("progress")
+            lifeBar.id = "lifeBar"
+            lifeBar.value = "100"
+            lifeBar.max = "100"
+
+            document.getElementById("barHolder").appendChild(lifeBar)   
+        }
+
+        function updateBar() {
+            var lifeBar = document.getElementById("lifeBar")
+            lifeBar.value = checkCircleLife()
+        }
+
+        function checkCircleLife() {
+            var life = circuloObj.life
+            var porcentagem = life/3
+            var totalQueVaiNaBarra = Math.floor(porcentagem)
+            return totalQueVaiNaBarra;
+        }
+
+        function getColidedWithBombEnemies(bomb) {
+            var colidedEnemies = enemies.filter(function(enemie){
+                return enemie.currentPosition.x == bomb.currentPosition.x && enemie.currentPosition.y == bomb.currentPosition.y
+                
+                }
+            )
+           for (let index = 0; index < colidedEnemies.length; index++) {
+              const enemie = colidedEnemies[index]
+              removeEnemie(enemie)
+           }
+           if (colidedEnemies.length > 0) {
+               return bomb
+           }
+        }
+
+        function mapColidedWithBomb() {
+           var colidedBombs = bombs.map(getColidedWithBombEnemies) 
+           for (let index = 0; index < colidedBombs.length; index++) {
+            
+            const bomb = colidedBombs[index]
+            if (bomb) {
+                removeBombColided(bomb)
+            }
+         }
+        }
+
+        function removeBombColided(bomb) {
+            var indexBomb = bombs.indexOf(bomb)
+            bombs.splice(indexBomb, 1)
+            var elementoARemover = document.getElementById(bomb.id)
+            elementoARemover.remove()
+            
+        }
+
+        function putBomb() {
+            if (circuloObj.bombNum >= 1) {
+                createBomb()
+                circuloObj.bombNum = circuloObj.bombNum - 1
+                return
+            }   
+        }
+
+        function createBomb() {
+
+            var figure = document.createElement("figure")
+            figure.className = "bomb"
+            figure.style.top = circuloObj.currentPosition.y + "px"
+            figure.style.left = circuloObj.currentPosition.x + "px"
+            figure.id = tick
+            document.body.appendChild(figure)
+
+            var element = document.getElementById(tick)
+            var bomba = {id:tick, currentPosition:{x:circuloObj.currentPosition.x, y:circuloObj.currentPosition.y}}
+            bombs.push(bomba)
+        }
+
+
+
+
+
+
+
+
         
         //inimigos
         function checkEnemies() {
           enemies.map(lessLifeOnEnemie)
         }
+
         function removeEnemie(enemie) {
             var indexEnemie = enemies.indexOf(enemie)
             enemies.splice(indexEnemie, 1)

@@ -17,3 +17,20 @@
     width: 30px;
     margin: 0;
 }
+
+.bomb {
+  position: absolute;
+    display: block;
+    background: black;
+    border-radius: 100%;
+    height: 30px;
+    width: 30px;
+    margin: 0;
+}
+
+.right {
+  position: absolute;
+  right: 10px;
+  width: 200px;
+
+}
