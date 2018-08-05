@@ -4,6 +4,8 @@
 
         var enemies = []
         var bombs = []
+        var powerBombs = []
+        
         const possiblyDirections = ["ArrowRight", "ArrowDown", "ArrowUp", "ArrowLeft" ];
         document.addEventListener('DOMContentLoaded', initializePage, false);
         var circulo
@@ -50,12 +52,23 @@
             }
         }
 
+        function putSuperPowerBomb() {
+            if (tick == 0) {
+                return
+            }
+            if (tick % 100 == 0) {
+                createSuperPowerBomb()
+            }
+        }
+
         function changeNumber() {
             criaInimigo()
+            putSuperPowerBomb()
             tick = tick + 1
             timeToMovementCirculo()
             moveEnemies()
             checkEnemies()
+            mapCheckPower()
             mapColidedWithBomb()
             updateBar()
             mapColisionResults()
@@ -208,6 +221,7 @@
         function putBomb() {
             if (circuloObj.bombNum >= 1) {
                 createBomb()
+                tirarBombaPan()
                 circuloObj.bombNum = circuloObj.bombNum - 1
                 return
             }   
@@ -222,16 +236,51 @@
             figure.id = tick
             document.body.appendChild(figure)
 
-            var element = document.getElementById(tick)
             var bomba = {id:tick, currentPosition:{x:circuloObj.currentPosition.x, y:circuloObj.currentPosition.y}}
             bombs.push(bomba)
         }
 
+        function tirarBombaPan() {
+            var id = "bombpanel" + circuloObj.bombNum
+            var bombaASerRetiradaDoPainel = document.getElementById("bombpanel" + circuloObj.bombNum)
+            bombaASerRetiradaDoPainel.remove()
+        }
 
+        function createSuperPowerBomb() {
+            var positionX = getRandomXPosition()
+            var positionY = getRandomYPosition()
+            var figure = document.createElement("figure")
+            figure.className = "bomb"
+            figure.style.top = positionY + "px"
+            figure.style.left = positionX + "px"
+            figure.id = tick
+            document.body.appendChild(figure)
+            var bomba = {id:tick, currentPosition:{x:positionX, y:positionY}}
+            powerBombs.push(bomba)
 
+        }
+        function mapCheckPower() {
+            powerBombs.map(checkIfGotSuperBomb)
+        }
+        function checkIfGotSuperBomb(bomb) {
+            if(circuloObj.currentPosition.x == bomb.currentPosition.x && circuloObj.currentPosition.y == bomb.currentPosition.y){
+                circuloObj.bombNum =  circuloObj.bombNum + 1
+                var elementoARemover = document.getElementById(bomb.id)
+                elementoARemover.remove()
+                addBombToPanel()
+            }
+        }
 
-
-
+        function addBombToPanel() {
+            var figure = document.createElement("figure")
+            figure.className = "bombpanel"
+            figure.id = "bombpanel" + circuloObj.bombNum 
+            var multiplier = circuloObj.bombNum - 1
+            var xPosition = multiplier * 25
+            figure.style.left = xPosition + "px"
+            var divHolder = document.getElementById("bombholder")
+            divHolder.appendChild(figure)
+        }
 
 
         
@@ -346,6 +395,31 @@
             Math.ceil(min)
             Math.floor(max)
             return Math.floor(Math.random() * (max - min)) + min;   
+        }
+
+        function getRandomXPosition() {
+            var min = 0
+            var max = windowWidth
+            Math.ceil(min)
+            Math.floor(max)
+            var divider = Math.floor(Math.random() * (max - min)) + min;  
+            var multiplier =  divider / speed
+            var rounded = Math.round(multiplier)
+            var result = rounded * speed
+            return result
+
+        }
+
+        function getRandomYPosition() {
+            var min = 0
+            var max = windowHeight
+            Math.ceil(min)
+            Math.floor(max)
+            var divider = Math.floor(Math.random() * (max - min)) + min;   
+            var multiplier =  divider / speed
+            var rounded = Math.round(multiplier)
+            var result = rounded * speed
+            return result
         }
 })();
     
