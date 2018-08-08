@@ -286,7 +286,7 @@
                 circuloObj.portalNum =  circuloObj.portalNum + 1
                 var elementoARemover = document.getElementById(portal.id)
                 elementoARemover.remove()
-                var indexPortal = enemies.indexOf(portal)
+                var indexPortal = portalPowers.indexOf(portal)
                 portalPower.splice(indexPortal, 1)  
                 addPortalToPanel()
             }
@@ -300,9 +300,7 @@
 
         function getColidedPortal() {
             var resultado = openPortals.filter(function(portal){
-
                 return portal.currentPosition.x == circuloObj.currentPosition.x && portal.currentPosition.y == circuloObj.currentPosition.y
-
             })
             return resultado
         }
@@ -311,15 +309,14 @@
             var resultado = getColidedPortal()
 
             if (resultado.length > 0){
-                TransportTroughtTheUniverse()
+                transportTroughtTheUniverse(resultado.pop())
             }
         }
 
-        function TransportTroughtTheUniverse() {
-            var portalPego = getColidedPortal()
+        function transportTroughtTheUniverse(portalPego) {
             
             var portaisEmQuestao = openPortals.filter(function(portal){
-                return portal.key == portalPego[0].key;
+                return portal.key == portalPego.key;
             })
 
             var portalDeSaida = portaisEmQuestao.filter(function(portal){ return portal.id != portalPego[0].id })
