@@ -5,9 +5,14 @@
         var enemies = []
         var bombs = []
         var powerBombs = []
+        var portalPower = []
+        var openPortals = []
         
+
         const possiblyDirections = ["ArrowRight", "ArrowDown", "ArrowUp", "ArrowLeft" ];
         document.addEventListener('DOMContentLoaded', initializePage, false);
+        var portalKey 
+        var portalStage = "blackHole"
         var circulo
         var circuloObj
         var enemieId = 0
@@ -21,7 +26,7 @@
         var windowHeight
         
         function addCirculoObject() {
-            circuloObj = {id: circulo.id, currentPosition:{x: 0, y:0}, life:300, bombNum:5} 
+            circuloObj = {id: circulo.id, currentPosition:{x: 0, y:0}, life:300, bombNum:5, portalNum:0} 
         }
         
         function getWindowSize() {
@@ -61,15 +66,27 @@
             }
         }
 
+        function putPortalPower() {
+            if (tick == 0) {
+                return
+            }
+            if (tick % 50 == 0) {
+                createPortalPower()  
+            }
+        }
+
         function changeNumber() {
-            criaInimigo()
+            criaInimigo()   
             putSuperPowerBomb()
+            putPortalPower()
             tick = tick + 1
             timeToMovementCirculo()
             moveEnemies()
             checkEnemies()
             mapCheckPower()
             mapColidedWithBomb()
+            mapCheckPortalPower()
+            checkIfGotInThePortal()
             updateBar()
             mapColisionResults()
             ifLoose()
@@ -94,6 +111,9 @@
             var nextCommand = event.key
             if (nextCommand == " ") {
                 putBomb()
+            }
+            if (nextCommand == "x") {
+                checkIfCanCreatePortal()
             }
             if(possiblyDirections.includes(nextCommand)){   
                 lastCommand = event.key
@@ -136,6 +156,7 @@
                 showLooseScreen()   
             }
         }
+
         function showLooseScreen() {
             var body = document.getElementById("bodyelement")
             body.style.backgroundColor = "Gray"
@@ -240,10 +261,123 @@
             bombs.push(bomba)
         }
 
+        function createPortalPower() {
+            var positionY = getRandomYPosition()
+            var positionX = getRandomYPosition()
+            var id = "portalPower_" + tick
+            var figure = document.createElement("figure")
+            figure.className = "portal"
+            figure.style.top = positionY + "px"
+            figure.style.left = positionX + "px"
+            figure.id = id
+
+            document.body.appendChild(figure)
+
+            var portal =  {id:id, currentPosition:{x:positionX, y:positionY,}}
+            portalPower.push(portal)
+        }
+
+        function mapCheckPortalPower() {
+            portalPower.map(checkPortalPower)
+        }
+
+        function checkPortalPower(portal) {
+            if(circuloObj.currentPosition.x == portal.currentPosition.x && circuloObj.currentPosition.y == portal.currentPosition.y){
+                circuloObj.portalNum =  circuloObj.portalNum + 1
+                var elementoARemover = document.getElementById(portal.id)
+                elementoARemover.remove()
+                var indexPortal = enemies.indexOf(portal)
+                portalPower.splice(indexPortal, 1)  
+                addPortalToPanel()
+            }
+        }
+
+        function checkIfCanCreatePortal() {
+            if (circuloObj.portalNum > 0) {
+                createPortal()
+            }
+        }
+
+        function getColidedPortal() {
+            var resultado = openPortals.filter(function(portal){
+
+                return portal.currentPosition.x == circuloObj.currentPosition.x && portal.currentPosition.y == circuloObj.currentPosition.y
+
+            })
+            return resultado
+        }
+
+        function checkIfGotInThePortal() {
+            var resultado = getColidedPortal()
+
+            if (resultado.length > 0){
+                TransportTroughtTheUniverse()
+            }
+        }
+
+        function TransportTroughtTheUniverse() {
+            var portalPego = getColidedPortal()
+            
+            var portaisEmQuestao = openPortals.filter(function(portal){
+                return portal.key == portalPego[0].key;
+            })
+
+            var portalDeSaida = portaisEmQuestao.filter(function(portal){ return portal.id != portalPego[0].id })
+
+            circuloObj.currentPosition = portalDeSaida[0].currentPosition
+        }
+
+
+        function createPortal() {
+            var id = "portal_" + tick
+            if (portalStage == "Yin") {
+                portalStage = "Yang"
+                
+            }
+            
+            if (portalStage == "blackHole") {
+                portalKey = "portalKey_" + tick
+                portalStage = "Yin"
+                changePortalStage()
+            } 
+            
+            
+            
+            var figure = document.createElement("figure")
+            figure.className = "portalUse"
+            figure.style.top = circuloObj.currentPosition.y + "px"
+            figure.style.left = circuloObj.currentPosition.x + "px"
+            figure.id = id
+
+            document.body.appendChild(figure)
+
+            var portal =  {id:id, currentPosition:{x:circuloObj.currentPosition.x, y:circuloObj.currentPosition.y}, key:portalKey}
+            openPortals.push(portal)
+
+            if (portalStage == "Yang") {
+                portalStage = "blackHole"    
+                tirarPortalPan()  
+                circuloObj.portalNum = circuloObj.portalNum - 1
+            }
+          
+        }
+
         function tirarBombaPan() {
             var id = "bombpanel" + circuloObj.bombNum
             var bombaASerRetiradaDoPainel = document.getElementById("bombpanel" + circuloObj.bombNum)
             bombaASerRetiradaDoPainel.remove()
+        }
+
+        function changePortalStage() {
+            var id = "portalpanel" + circuloObj.portalNum
+            var figuraDoPainel = document.getElementById(id)
+            figuraDoPainel.className = "portalpart2panel"
+        }
+
+        function tirarPortalPan() {
+            var id = "portalpanel" + circuloObj.portalNum
+            var portalASerRetiradoDoPainel = document.getElementById(id)
+            portalASerRetiradoDoPainel.remove()
         }
 
         function createSuperPowerBomb() {
@@ -282,6 +416,16 @@
             divHolder.appendChild(figure)
         }
 
+        function addPortalToPanel() {
+            var figure = document.createElement("figure")
+            figure.className = "portalpanel"
+            figure.id = "portalpanel" + circuloObj.portalNum 
+            var multiplier = circuloObj.portalNum - 1
+            var xPosition = multiplier * 25
+            figure.style.left = xPosition + "px"
+            var divHolder = document.getElementById("portalholder")
+            divHolder.appendChild(figure)
+        }
 
         
         //inimigos
