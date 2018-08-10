@@ -80,6 +80,7 @@
             putSuperPowerBomb()
             putPortalPower()
             tick = tick + 1
+            checkinIfPassedTheLimits()
             timeToMovementCirculo()
             moveEnemies()
             checkEnemies()
@@ -89,7 +90,9 @@
             checkIfGotInThePortal()
             updateBar()
             mapColisionResults()
+            
             ifLoose()
+            
             document.getElementById("score").innerHTML ="Score:" + tick
                         
         }
@@ -286,7 +289,7 @@
                 circuloObj.portalNum =  circuloObj.portalNum + 1
                 var elementoARemover = document.getElementById(portal.id)
                 elementoARemover.remove()
-                var indexPortal = portalPowers.indexOf(portal)
+                var indexPortal = portalPower.indexOf(portal)
                 portalPower.splice(indexPortal, 1)  
                 addPortalToPanel()
             }
@@ -319,7 +322,7 @@
                 return portal.key == portalPego.key;
             })
 
-            var portalDeSaida = portaisEmQuestao.filter(function(portal){ return portal.id != portalPego[0].id })
+            var portalDeSaida = portaisEmQuestao.filter(function(portal){ return portal.id != portalPego.id })
 
             circuloObj.currentPosition = portalDeSaida[0].currentPosition
         }
@@ -446,7 +449,7 @@
         }
 
         function createEnemie() {
-            var position = {x:0, y:0}
+            var position = getRandomPossibleEnemieBornPosition()
             var life = getRandomLife()
             var enemieElement = createBootElement(position)
             var boot = createBoot(enemieElement.id, position.x, position.y, life)
@@ -561,6 +564,57 @@
             var rounded = Math.round(multiplier)
             var result = rounded * speed
             return result
+        }
+
+        // random enemie borning
+
+        function getRandomPossibleEnemieBornPosition() {
+            var min = 1
+            var max = 3
+            Math.ceil(min)
+            Math.floor(max)
+            var result = Math.floor(Math.random() * (max - min)) + min; 
+
+            var positionWillBe = getRandomPosition(result)
+            return positionWillBe
+        }
+
+        function getRandomPosition(num) {
+            if (num == 1) {
+                var position = {x:50, y:150}
+                return position
+            }
+
+            if (num == 2) {
+                var position2 = {x:950, y:500}
+                return position2
+            }
+        }
+
+        function checkinIfPassedTheLimits() {
+
+            if (circuloObj.currentPosition.x < 0) {
+                looseScreenWhenTranspasseTheLimit()
+            }
+            
+            if (circuloObj.currentPosition.x > windowWidth) {
+                looseScreenWhenTranspasseTheLimit()
+            }
+
+            if (circuloObj.currentPosition.y < 0) {
+                looseScreenWhenTranspasseTheLimit()
+            }
+
+            if (circuloObj.currentPosition.y > windowHeight) {
+                looseScreenWhenTranspasseTheLimit()
+            }
+        }
+
+        function looseScreenWhenTranspasseTheLimit() {
+            clearInterval(legalTimer)
+                var barra = document.getElementById("lifeBar")
+                barra.value = "0"
+                showLooseScreen()
         }
 })();
     
