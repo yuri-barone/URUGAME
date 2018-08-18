@@ -27,6 +27,7 @@
         
         function addCirculoObject() {
             circuloObj = {id: circulo.id, currentPosition:{x: 0, y:0}, life:300, bombNum:5, portalNum:0} 
+            addToGameMap(circuloObj.currentPosition, circuloObj)
         }
         
         function getWindowSize() {
@@ -452,9 +453,10 @@
             var position = getRandomPossibleEnemieBornPosition()
             var life = getRandomLife()
             var enemieElement = createBootElement(position)
+            
             var boot = createBoot(enemieElement.id, position.x, position.y, life)
             enemies.push(boot)
-
+            addToGameMap(position, boot)
         }
 
         function createBootElement(position){
@@ -616,6 +618,22 @@
                 barra.value = "0"
                 showLooseScreen()
         }
+
+
+        /* codigo adicional para testar a grid */
+
+
+        var gameMap = {}
+
+        function addToGameMap(position, item){
+            var stringIndex = "position_" + position.x + "_" + position.y 
+            if(!gameMap[stringIndex]) { gameMap[stringIndex] = [] }
+            gameMap[stringIndex].push(item)
+            }
+
+
+            //adicionar na bomba e no portal tanto no power quanto no uso 
+        
 })();
     
     
